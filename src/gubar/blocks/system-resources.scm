@@ -42,6 +42,22 @@
       (format #t "Error running ~a: ~a ~a\n" cmd key args)
       #f)))
 
+;; Helper functions to get colors
+(define (get-color-for-percentage percent)
+  (cond
+    ((>= percent 90) "#FF0000")  ; Red for critical (>=90%)
+    ((>= percent 75) "#FFA500")  ; Orange for warning (>=75%)
+    ((>= percent 50) "#FFFF00")  ; Yellow for moderate (>=50%)
+    (else "#00FF00")))           ; Green for normal (<50%)
+
+;; Helper function to get color for temperature
+(define (get-color-for-temp temp)
+  (cond
+    ((>= temp 80) "#FF0000")     ; Red for hot (>=80°C)
+    ((>= temp 70) "#FFA500")     ; Orange for warm (>=70°C)
+    ((>= temp 60) "#FFFF00")     ; Yellow for moderate (>=60°C)
+    (else "#00FF00")))           ; Green for cool (<60°C)
+
 ;; CPU Monitor
 (define* (cpu-monitor #:key (format-str "CPU: ~a% ~a°C") (nerd-icons #f))
   (let ((prev-idle 0)
@@ -59,6 +75,7 @@
              (if (not stat-line)
                  (begin
                    (set-block-full-text! block "CPU: ERR")
+                   (set-block-color! block "#FF0000")  ; Red for error
                    block)
                  (let* ((parts (string-split stat-line #\space))
                         (cpu-nums (filter-map safe-string->number (cdr parts)))
@@ -77,14 +94,17 @@
                      (if (not temp-str)
                          (begin
                            (set-block-full-text! block (format #f "CPU: ~a%" cpu-usage))
+                           (set-block-color! block (get-color-for-percentage cpu-usage))
                            block)
                          (let ((temp (truncate (/ (string->number temp-str) 1000.0))))
                            (set-block-full-text! block (format #f format-str cpu-usage temp))
+                           (set-block-color! block (get-color-for-percentage cpu-usage))
                            (set-block-urgent! block (> temp 80))
                            block)))))))
          (lambda (key . args)
            (format #t "CPU Error: ~a ~a\n" key args)
            (set-block-full-text! block "CPU: ERR")
+           (set-block-color! block "#FF0000")  ; Red for error
            block))))))
 
 ;; Memory Monitor
@@ -103,19 +123,23 @@
            (if (or (eof-object? percent-str) (not percent-str))
                (begin
                  (set-block-full-text! block "MEM: ERR")
+                 (set-block-color! block "#FF0000")  ; Red for error
                  block)
                (let ((percent (string->number percent-str)))
                  (if (not percent)
                      (begin
                        (set-block-full-text! block "MEM: ERR")
+                       (set-block-color! block "#FF0000")  ; Red for error
                        block)
                      (begin
                        (set-block-full-text! block (format #f format-str percent))
+                       (set-block-color! block (get-color-for-percentage percent))
                        (set-block-urgent! block (> percent 90))
                        block))))))
        (lambda (key . args)
          (format #t "Memory Error: ~a ~a\n" key args)
          (set-block-full-text! block "MEM: ERR")
+         (set-block-color! block "#FF0000")  ; Red for error
          block)))))
 
 ;; Disk Monitor
@@ -134,19 +158,23 @@
              (if (or (eof-object? percent-str) (not percent-str))
                  (begin
                    (set-block-full-text! block "DISK: ERR")
+                   (set-block-color! block "#FF0000")  ; Red for error
                    block)
                  (let ((percent (string->number percent-str)))
                    (if (not percent)
                        (begin
                          (set-block-full-text! block "DISK: ERR")
+                         (set-block-color! block "#FF0000")  ; Red for error
                          block)
                        (begin
                          (set-block-full-text! block (format #f format-str percent))
+                         (set-block-color! block (get-color-for-percentage percent))
                          (set-block-urgent! block (> percent 90))
                          block)))))))
        (lambda (key . args)
          (format #t "Disk Error: ~a ~a\n" key args)
          (set-block-full-text! block "DISK: ERR")
+         (set-block-color! block "#FF0000")  ; Red for error
          block)))))
 
 ;; GPU Monitor
