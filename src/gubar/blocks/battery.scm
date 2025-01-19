@@ -7,8 +7,8 @@
   #:export (battery))
 
 (define* (battery #:key (format "~a ~a%") (nerd-icons #f))
-  (let ((bat "/sys/class/power_supply/BAT0/capacity")
-        (ac "/sys/class/power_supply/AC/online")
+  (let ((bat "/sys/class/power_supply/BAT1/capacity")
+        (ac "/sys/class/power_supply/ADP1/online")
         (icons '(󰁺 󰁻 󰁼 󰁽 󰁾 󰁿 󰂀 󰂁 󰂂 󰁹)))
     (gublock
      #:block '(("name" . "battery") ("full_text" . "N/A"))
