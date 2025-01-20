@@ -202,6 +202,7 @@
                              (set-block-full-text! 
                               block 
                               (format #f format-str temp))
+                             (set-block-color! block (get-color-for-temp temp))
                              (set-block-urgent! block (> temp 80))
                              block)))))
                ;; Try reading from AMD/Intel GPU if available
@@ -211,15 +212,18 @@
                        (if (not temp-content)
                            (begin
                              (set-block-full-text! block "GPU: ERR")
+                             (set-block-color! block "#FF0000")  ; Red for error
                              block)
                            (let ((temp (truncate (/ (string->number temp-content) 1000.0))))
                              (set-block-full-text! 
                               block 
                               (format #f format-str temp))
+                             (set-block-color! block (get-color-for-temp temp))
                              (set-block-urgent! block (> temp 80))
                              block)))
                      (begin
                        (set-block-full-text! block "GPU: N/A")
+                       (set-block-color! block "#808080")  ; Gray for N/A
                        block)))))
          block)
        (lambda (key . args)
