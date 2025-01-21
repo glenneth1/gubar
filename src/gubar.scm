@@ -8,18 +8,21 @@
   #:use-module (fibers io-wakeup)
   #:use-module (gubar blocks date-time)
   #:use-module (gubar blocks label)
+  #:use-module (gubar blocks workspaces)
   #:use-module (gubar gublock)
   #:use-module (gubar swaybar-protocol)
   #:use-module (ice-9 format)
   #:use-module (ice-9 exceptions)
   #:use-module (ice-9 match)
   #:use-module (ice-9 textual-ports)
+  #:use-module (ice-9 rdelim)
   #:use-module (json)
   #:use-module (srfi srfi-1)
   #:export (main))
 
 (define simple-config
-  (list (date-time #:interval 1)))
+  (list (workspaces)
+        (date-time #:interval 1)))
 
 (define (load-config)
   (let ((config-file (string-append (getenv "HOME") "/.config/gubar/config.scm")))

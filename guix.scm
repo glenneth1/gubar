@@ -26,4 +26,4 @@ then be displayed in the bar.")
     (home-page "https://github.com/trevarj/gubar")
     (license gpl3+)))
 
-gubar
+    gubar
