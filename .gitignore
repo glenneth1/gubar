@@ -1,0 +1,8 @@
+# Test scripts
+memstress.py
+monitor.sh
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
