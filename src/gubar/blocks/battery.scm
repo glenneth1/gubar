@@ -44,7 +44,11 @@
              (cond
               ((string= type "Battery")
                (format (current-error-port) "Found battery: ~a~%" supply)
-               (set! batteries (cons supply batteries)))
+               ;; Add BAT0 or BAT1 to front, others to back
+               (if (or (string= supply "BAT0")
+                       (string= supply "BAT1"))
+                   (set! batteries (cons supply batteries))
+                   (set! batteries (append batteries (list supply)))))
               ((or (string= type "Mains")
                    (string= supply "AC")
                    (string= supply "ADP1"))
@@ -55,7 +59,7 @@
     (format (current-error-port) "Final batteries: ~a~%" batteries)
     (format (current-error-port) "Final AC adapters: ~a~%" ac-adapters)
     
-    ;; Return detected paths
+    ;; Return detected paths, preferring BAT0 or BAT1 if available
     (cons 
      (if (null? batteries)
          #f  ; No battery found

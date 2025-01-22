@@ -3,7 +3,8 @@
   #:use-module (gubar swaybar-protocol)
   #:use-module (json)
   #:use-module (ice-9 popen)
-  #:use-module (ice-9 rdelim)  ; Add rdelim for get-string-all
+  #:use-module (ice-9 rdelim)
+  #:use-module (ice-9 textual-ports)  ; This provides get-string-all
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
   #:export (workspaces))
@@ -17,15 +18,22 @@
         (set! port (open-input-pipe (string-append "swaymsg -rt " cmd)))
         (let* ((output (get-string-all port))
                (result (if (string-null? output)
-                         '()
+                         (begin
+                           (format (current-error-port) "Empty output from swaymsg~%")
+                           '())
                          (begin
                            (format (current-error-port) "Raw output: ~a~%" output)
                            (let ((json (json-string->scm output)))
                              (format (current-error-port) "Parsed JSON: ~a~%" json)
                              (if (vector? json)
-                                 (vector->list json)
-                                 (list json)))))))
+                                 (begin
+                                   (format (current-error-port) "Converting vector to list~%")
+                                   (vector->list json))
+                                 (begin
+                                   (format (current-error-port) "Using JSON as single item list~%")
+                                   (list json))))))))
           (close-pipe port)
+          (format (current-error-port) "Final result: ~a~%" result)
           result))
       (lambda (key . args)
         (when port (close-pipe port))
@@ -60,14 +68,17 @@
        (lambda ()
          (format (current-error-port) "Running workspace procedure~%")
          (let* ((ws-info (run-swaymsg-command "get_workspaces")))
+           (format (current-error-port) "Got workspace info: ~a~%" ws-info)
            (format (current-error-port) "Workspace count: ~a~%" (length ws-info))
            (if (null? ws-info)
                (begin
+                 (format (current-error-port) "No workspaces found~%")
                  (set-block-full-text! block "No Workspaces")
                  (set-block-color! block "#FF0000")  ; Red for error
                  block)
                (let ((text (string-join 
                           (map (lambda (ws)
+                                (format (current-error-port) "Formatting workspace: ~a~%" ws)
                                 (format-workspace ws names))
                                (sort ws-info 
                                      (lambda (a b)
