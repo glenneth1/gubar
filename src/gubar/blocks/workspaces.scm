@@ -54,13 +54,16 @@
 ;; Main workspace block constructor
 (define* (workspaces #:key 
                      (names '())
-                     (interval 1))
+                     (interval 1)
+                     (min-width 200)  ; Default min-width
+                     (align 'left))   ; Default alignment
   (format (current-error-port) "Creating workspace block with names: ~a~%" names)
   (gublock
-   #:block '(("full_text" . "Loading...")
+   #:block `(("full_text" . "Loading...")
             ("name" . "workspaces")
             ("color" . "#FFFFFF")  ; Default color for workspaces
-            ("align" . "left"))
+            ("align" . ,(symbol->string align))
+            ("min_width" . ,min-width))
    #:interval interval
    #:procedure
    (lambda (block)
